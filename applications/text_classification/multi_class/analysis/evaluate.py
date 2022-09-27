@@ -53,7 +53,7 @@ def preprocess_function(examples, tokenizer, max_seq_length, is_test=False):
     return result
 
 
-def read_local_dataset(path, label_list):
+def read_local_dataset(path, label_map):
     """
     Read dataset file
     """
@@ -95,7 +95,6 @@ def evaluate():
     train_path = os.path.join(args.dataset_dir, args.train_file)
     dev_path = os.path.join(args.dataset_dir, args.dev_file)
 
-    label_list = {}
     label_map = {}
     # with open(label_path, 'r', encoding='utf-8') as f:
     #     for i, line in enumerate(f):
@@ -108,11 +107,11 @@ def evaluate():
     label_map[1] = '1'
     train_ds = load_dataset(read_local_dataset_excel,
                             path=train_path,
-                            label_list=label_list,
+                            label_map=label_map,
                             lazy=False)
     dev_ds = load_dataset(read_local_dataset_excel,
                           path=dev_path,
-                          label_list=label_list,
+                          label_map=label_map,
                           lazy=False)
     trans_func = functools.partial(preprocess_function,
                                    tokenizer=tokenizer,
@@ -139,9 +138,8 @@ def evaluate():
     probs = []
     labels = []
     for batch in train_data_loader:
-        input_ids, token_type_ids, label = batch['input_ids'], batch[
-            'token_type_ids'], batch['labels']
-        logits = model(input_ids, token_type_ids)
+        label = batch.pop("labels")
+        logits = model(**batch)
         prob = F.softmax(logits, axis=1)
         labels.extend(label.numpy())
         probs.extend(prob.numpy())
@@ -156,9 +154,8 @@ def evaluate():
     probs = []
     labels = []
     for batch in dev_data_loader:
-        input_ids, token_type_ids, label = batch['input_ids'], batch[
-            'token_type_ids'], batch['labels']
-        logits = model(input_ids, token_type_ids)
+        label = batch.pop("labels")
+        logits = model(**batch)
         prob = F.softmax(logits, axis=1)
         labels.extend(label.numpy())
         probs.extend(prob.numpy())
@@ -198,8 +195,8 @@ def evaluate():
         for i, (p, l) in enumerate(zip(preds, labels)):
             p, l = int(p), int(l)
             if p != l:
-                f.write("{:.2f}".format(probs[i][p]) + "\t" + label_map[p] +
-                        "\t" + label_map[l] + "\t" + dev_ds.data[i]["text"] +
+                f.write("{:.2f}".format(probs[i][p]) + "\t" + label_list[p] +
+                        "\t" + label_list[l] + "\t" + dev_ds.data[i]["text"] +
                         "\n")
     f.close()
     logger.info("Bad case in dev dataset saved in {}".format(
