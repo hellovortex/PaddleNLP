@@ -1,0 +1,67 @@
+python train.py \
+    --device "cpu" \
+    --max_seq_length 512 \
+    --model_name "ernie-3.0-medium-zh" \
+    --batch_size 32 \
+    --early_stop \
+    --dataset_dir "/Users/a10.12/Desktop/padddle/data_20000" \
+    --save_dir "/Users/a10.12/Desktop/padddle/data_20000/checkpoint" \
+    --train_file "data.xlsx" \
+    --label_file "label.txt" \
+    --dev_file "dev.xlsx"
+
+[   "--device",
+                "cpu",
+                "--dataset_dir",
+                "/Users/a10.12/Desktop/padddle/data1/",
+                "--save_dir",
+                "/Users/a10.12/Desktop/padddle/data1/checkpoint/",
+                "--max_seq_length",
+                "512",
+                "--batch_size",
+                "32",
+                "--model_name",
+                "ernie-3.0-medium-zh",
+                "--train_file",
+                "data.xlsx",
+                "--label_file",
+                "label.txt",
+                "--dev_file",
+                "dev.xlsx"
+            ]
+
+python analysis/evaluate.py \
+    --device "cpu" \
+    --dataset_dir "/Users/a10.12/Desktop/padddle/data1" \
+    --params_path "/Users/a10.12/Desktop/padddle/data1/checkpoint" \
+    --max_seq_length 512 \
+    --batch_size 32 \
+    --bad_case_path "./bad_case.txt" \
+    --train_file "data.xlsx" \
+    --label_file "label.txt" \
+    --dev_file "dev.xlsx"
+
+
+
+
+
+
+            [   "--device",
+                "cpu",
+                "--dataset_dir",
+                "/Users/a10.12/Desktop/padddle/data1/",
+                "--params_path",
+                "/Users/a10.12/Desktop/padddle/data1/checkpoint/",
+                "--max_seq_length",
+                "512",
+                "--batch_size",
+                "32",
+                "--bad_case_path",
+                "./bad_case.txt",
+                "--train_file",
+                "data.xlsx",
+                "--label_file",
+                "label.txt",
+                "--dev_file",
+                "dev.xlsx"
+            ]
