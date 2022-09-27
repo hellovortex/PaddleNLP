@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import numpy as np
+import pandas
 
 import paddle
 import paddle.nn.functional as F
@@ -81,3 +82,16 @@ def read_local_dataset(path, label_list):
             sentence = ''.join(items[:-1])
             label = items[-1]
             yield {'text': sentence, 'label': label_list[label]}
+
+def read_local_dataset_excel(path, label_list):
+    """
+    Read dataset
+    """
+    sh = pandas.read_excel(path, index_col=None)
+    print(sh.__dict__)
+    for li in sh.values:
+        if isinstance(li[0], str) and len(li[0]) > 100:
+            yield {'text': li[0], 'label': label_list[li[1]]}
+        else:
+            print("too short ")
+            print(li[0])

@@ -31,7 +31,7 @@ from paddlenlp.datasets import load_dataset
 from paddlenlp.transformers import AutoModelForSequenceClassification, AutoTokenizer, LinearDecayWithWarmup
 from paddlenlp.utils.log import logger
 
-from utils import evaluate, preprocess_function, read_local_dataset
+from utils import evaluate, preprocess_function, read_local_dataset, read_local_dataset_excel
 
 # yapf: disable
 parser = argparse.ArgumentParser()
@@ -96,18 +96,20 @@ def train():
     # load and preprocess dataset
 
     label_list = {}
-    with open(os.path.join(args.dataset_dir, args.label_file),
-              'r',
-              encoding='utf-8') as f:
-        for i, line in enumerate(f):
-            l = line.strip()
-            label_list[l] = i
-    train_ds = load_dataset(read_local_dataset,
+    # with open(os.path.join(args.dataset_dir, args.label_file),
+    #           'r') as f:
+    #     for i, line in enumerate(f):
+    #         l = line.strip()
+    #         label_list[l] = i
+    label_list[0] = 0
+    label_list[1] = 1
+
+    train_ds = load_dataset(read_local_dataset_excel,
                             path=os.path.join(args.dataset_dir,
                                               args.train_file),
                             label_list=label_list,
                             lazy=False)
-    dev_ds = load_dataset(read_local_dataset,
+    dev_ds = load_dataset(read_local_dataset_excel,
                           path=os.path.join(args.dataset_dir, args.dev_file),
                           label_list=label_list,
                           lazy=False)

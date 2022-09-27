@@ -15,6 +15,7 @@
 import functools
 import os
 import argparse
+import pandas
 
 import numpy as np
 from sklearn.metrics import top_k_accuracy_score, classification_report
@@ -61,6 +62,15 @@ def read_local_dataset(path, label_list):
             sentence, label = line.strip().split('\t')
             yield {'text': sentence, 'label': label_list[label]}
 
+def read_local_dataset_excel(path, label_list):
+    """
+    Read dataset
+    """
+    sh = pandas.read_excel(path, index_col=None)
+    print(sh.__dict__)
+    for li in sh.values:
+        yield {'text': li[0], 'label': label_list[li[1]]}
+
 
 @paddle.no_grad()
 def evaluate():
@@ -87,16 +97,20 @@ def evaluate():
 
     label_list = {}
     label_map = {}
-    with open(label_path, 'r', encoding='utf-8') as f:
-        for i, line in enumerate(f):
-            l = line.strip()
-            label_list[l] = i
-            label_map[i] = l
-    train_ds = load_dataset(read_local_dataset,
+    # with open(label_path, 'r', encoding='utf-8') as f:
+    #     for i, line in enumerate(f):
+    #         l = line.strip()
+    #         label_list[l] = i
+    #         label_map[i] = l
+    label_list[0] = 0
+    label_list[1] = 1
+    label_map[0] = '0'
+    label_map[1] = '1'
+    train_ds = load_dataset(read_local_dataset_excel,
                             path=train_path,
                             label_list=label_list,
                             lazy=False)
-    dev_ds = load_dataset(read_local_dataset,
+    dev_ds = load_dataset(read_local_dataset_excel,
                           path=dev_path,
                           label_list=label_list,
                           lazy=False)
@@ -158,10 +172,10 @@ def evaluate():
     logger.info("Dev dataset size: {}".format(len(dev_ds)))
     logger.info("Accuracy in dev dataset: {:.2f}%".format(report['accuracy'] *
                                                           100))
-    logger.info("Top-2 accuracy in dev dataset: {:.2f}%".format(
-        top_k_accuracy_score(labels, probs, k=2) * 100))
-    logger.info("Top-3 accuracy in dev dataset: {:.2f}%".format(
-        top_k_accuracy_score(labels, probs, k=3) * 100))
+    # logger.info("Top-2 accuracy in dev dataset: {:.2f}%".format(
+    #     top_k_accuracy_score(labels, probs, k=2) * 100))
+    # logger.info("Top-3 accuracy in dev dataset: {:.2f}%".format(
+        # top_k_accuracy_score(labels, probs, k=3) * 100))
     for i in label_map:
         logger.info("Class name: {}".format(label_map[i]))
         logger.info(
